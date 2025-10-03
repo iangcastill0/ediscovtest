@@ -1,0 +1,173 @@
+import React from 'react';
+import { Button, Link, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, Dialog, DialogContent, DialogTitle, TextField, Box, LinearProgress } from '@mui/material';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import AttachmentIcon from '@mui/icons-material/Attachment';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { getGmailArchive, exportToZipMultipleMail } from 'utils/apiHelper';
+import { useParams } from 'react-router-dom';
+import MainCard from 'ui-component/cards/MainCard';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+
+const MessagePreview = ({ message, onClick }) => {
+  const fromHeader = message.payload.headers.find(header => header.name === 'From');
+  const subjectHeader = message.payload.headers.find(header => header.name === 'Subject');
+  const dateHeader = message.payload.headers.find(header => header.name === 'Date');
+
+  return (
+      <div>
+          <div onClick={onClick} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter'} style={{ background: 'none', color: '#2196f3', cursor: 'pointer', borderTop: '1px solid rgba(144, 202, 249, 0.46)' }}>
+              <h3 style={{ marginBottom: '0px' }}>
+                {fromHeader.value}
+              </h3>
+              <Grid container justifyContent="space-between" alignItems="center" spacing={2}>
+                  <Grid item xs={12} sm={8}>
+                      <h3>
+                        {subjectHeader.value}
+                      </h3>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                      <h3 style={{ float: 'right' }}>
+                        {new Date(dateHeader.value).toLocaleString()}
+                      </h3>
+                  </Grid>
+              </Grid>
+          </div>
+      </div>
+  );
+};
+
+const MessageDetail = ({ message, onClose }) => {
+  const fromHeader = message.payload.headers.find(header => header.name === 'From');
+  const subjectHeader = message.payload.headers.find(header => header.name === 'Subject');
+  const dateHeader = message.payload.headers.find(header => header.name === 'Date');
+
+  return (
+      <div style={{ position: 'fixed', top: '20%', left: '20%', right: '20%', bottom: '10%', backgroundColor: 'white', border: '1px solid #ccc', padding: '20px', overflow: 'auto', zIndex: 1000 }}>
+        <Button variant='contained' size='large' startIcon={<ArrowBackOutlinedIcon />} onClick={onClose} style={{ position: 'absolute', top: 20, right: 30 }}>
+            <Link style={{ color: 'white', textDecoration: 'none' }}>Close</Link>
+        </Button>
+        <div>{fromHeader.value}</div>
+        <div>{subjectHeader.value}</div>
+        <div>{dateHeader.value}</div>
+        <div dangerouslySetInnerHTML={{ __html: message.snippet }} />
+      </div>
+  );
+}
+
+const GmailTable = () => {
+    const [open, setOpen] = React.useState(false);
+    const [selectedEmail, setSelectedEmail] = React.useState(null);
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [emails, setEmails] = React.useState([]);
+    const [rows, setRows] = React.useState([]);
+    const [page, setPage] = React.useState(0);
+    const [loading, setLoading] = React.useState(false);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const { backupId } = useParams();
+    const [exporting, setExporting] = React.useState(false);
+    const [selectedMessage, setSelectedMessage] = React.useState(null);
+    React.useEffect(() => {
+        const fetch = async () => {
+            setLoading(true);
+            const data = await getGmailArchive(backupId);
+            console.log(data);
+            setEmails(data?.backups);
+            setRows(data?.backups);
+            setLoading(false);
+        }
+        fetch();
+    }, [backupId]);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const handleRowClick = (email) => {
+        setSelectedEmail(email);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSearch = () => {
+        // New function to handle search
+        setLoading(true);
+        // if (searchQuery) {
+        //     const searchLower = searchQuery.toLowerCase();
+        //     const filtered = emails.filter(email => email.subject.toLowerCase().includes(searchLower) ||
+        //         email.sender?.emailAddress.name.toLowerCase().includes(searchLower) ||
+        //         email.sender?.emailAddress.address.toLowerCase().includes(searchLower) ||
+        //         email.body.content.toLowerCase().includes(searchLower));
+        //     setRows(filtered);
+        // } else {
+        //     setRows(emails);
+        // }
+        setLoading(false);
+        // Update your state or do something with filtered emails
+    };
+
+    const handleExport = async () => {
+        const messages = [];
+        const filenames = [];
+        setExporting(true);
+        for (let i = 0; i < rows.length; i += 1) {
+            const selectedObject = rows[i];
+            const data = selectedObject?.body.content;
+            messages.push(data);
+            filenames.push(`${i}.html`);
+        }
+
+        await exportToZipMultipleMail(messages, filenames);
+        setExporting(false);
+    }
+
+    const query = new URLSearchParams(window.location.search);
+    const title = query.get('name');
+
+    const handleClickMessage = async (msg) => {
+      setSelectedMessage(msg);
+    };
+
+    return (
+        <MainCard title={`${title}`} backButton>
+            {(loading || exporting) && <LinearProgress />}
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <TextField
+                    label=""
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ margin: 8 }}
+                />
+                <Button
+                    variant="contained"
+                    onClick={handleSearch}
+                    style={{ margin: 8 }}
+                >
+                    Search
+                </Button>
+            </LocalizationProvider>
+            {/* <Button variant="contained" color='primary' startIcon={<FileDownloadIcon />} style={{ float: 'right' }} onClick={handleExport} sx={{ mr: 2 }}>
+                Export to HTML
+            </Button> */}
+
+            <div>
+                {rows.map((msg) => (
+                  <MessagePreview key={msg.id} message={msg} onClick={() => handleClickMessage(msg)} />
+                ))}
+                {selectedMessage && <MessageDetail message={selectedMessage} onClose={() => setSelectedMessage(null)} />}
+            </div>
+        </MainCard>
+    );
+};
+
+export default GmailTable;

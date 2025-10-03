@@ -1,0 +1,3 @@
+Need to run it into same folder extracted zip file exported from Slack.
+
+python html.py chats.csv users.csv chats_visualization.html

@@ -1,0 +1,10 @@
+.slack-emoji {
+    display: inline-flex;
+    width: 22px;
+    height: auto;
+}
+
+.slack-emoji-img {
+    position: absolute;
+    margin-top: -16px;
+}

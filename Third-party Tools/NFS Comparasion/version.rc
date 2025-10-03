@@ -1,0 +1,32 @@
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1,0,0,1
+PRODUCTVERSION 1,0,0,1
+FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+FILEFLAGS 0x1L
+#else
+FILEFLAGS 0x0L
+#endif
+FILEOS 0x4L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "Global Digital Forensics\0"
+            VALUE "FileDescription", "Utility for comparing NFS snapshots and generating a report of changed files between two snapshots.\0"
+            VALUE "FileVersion", "1.0.0.1\0"
+            VALUE "InternalName", "NFS Comparison\0"
+            VALUE "LegalCopyright", "Copyright (c) 2023 Global Digital Forensics\0"
+            VALUE "OriginalFilename", "nfs_compare_multi_process.py\0"
+            VALUE "ProductName", "NFS Comprarison\0"
+            VALUE "ProductVersion", "1.0.0.1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

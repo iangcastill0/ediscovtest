@@ -1,0 +1,8 @@
+# Ignore secret files
+.env
+.env.*
+Server/.env
+Server/config/*.json
+*.pem
+*.key
+*.crt

@@ -1,0 +1,20 @@
+.truncate {
+    display: block;
+    max-width: 200px; /* Adjust as necessary */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.p-component {
+    font-size: 0.9rem !important
+}
+
+.p-treetable .p-treetable-tbody > tr > td {
+    padding: 0.5rem 0.5rem
+}
+/* 
+.p-treetable table {
+    min-width: 30rem !important;
+    min-height: 66vh;
+} */
