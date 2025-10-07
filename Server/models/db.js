@@ -5,10 +5,11 @@ let db;
 let bucket;
 
 mongoose
-  .connect(`${config.DATABASE.mongoDBUri}${config.DATABASE.dbName}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    authSource: "test",  // Ensures authentication is done on the correct DB
+  connect(config.DATABASE.mongoDBUri, {
+  // modern driver ignores useNewUrlParser/useUnifiedTopology anyway
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    authSource: "admin",  // Ensures authentication is done on the correct DB
     authMechanism: "SCRAM-SHA-256",  // Specify authentication mechanism explicitly
   })
   .then(() => {
@@ -21,7 +22,7 @@ mongoose
       const client = new MongoClient(config.DATABASE.mongoDBUri, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        authSource: "test",  // Ensures authentication is done on the correct DB
+        authSource: "admin",  // Ensures authentication is done on the correct DB
         authMechanism: "SCRAM-SHA-256"
       });
   
