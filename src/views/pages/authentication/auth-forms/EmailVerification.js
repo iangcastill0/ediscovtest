@@ -314,7 +314,15 @@ const EmailVerification = ({ user }) => {
                     <DialogContentText>
                         Scan this QR code with your authenticator app.
                     </DialogContentText>
-                    <img src={authenticatorSecret} alt="Authenticator QR Code" />
+                        {typeof authenticatorSecret === 'string' ? (
+                        <img
+                            src={authenticatorSecret}
+                            alt="Authenticator QR Code"
+                            style={{ maxWidth: '100%', marginBottom: '1rem' }}
+                        />
+                        ) : (
+                        authenticatorSecret /* e.g. a <QRCode value="..."/> component */
+                        )}
                     <TextField
                         autoFocus
                         margin="dense"
