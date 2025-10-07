@@ -85,22 +85,39 @@ const EmailVerification = ({ user }) => {
         setResendTimer(60);
     };
 
-    const handleVerifyPhone = async (values, setErrors, setSubmitting) => {
-        console.log('Phone verification form submitted', values);
-        setSubmitting(true);
+const handleVerifyPhone = async (values, setErrors, setSubmitting) => {
+    console.log('Phone verification form submitted', values);
+    setSubmitting(true);
+    try {
         const phoneRes = await verifyPhoneNumberCode(user.email, values.phoneOtp);
+        console.log('Phone response:', phoneRes);
+        console.log('QR Code type:', typeof phoneRes.data.qrCode);
+        console.log('QR Code data:', phoneRes.data.qrCode);
+        
         if (phoneRes.data.ok) {
             setStatusText('Phone number verification successful!');
             setIsStatusSuccess(true);
-            setAuthenticatorSecret(phoneRes.data.qrCode);
+            
+            // Fix: Handle the QR code object properly
+            const qrCodeUrl = typeof phoneRes.data.qrCode === 'string' 
+                ? phoneRes.data.qrCode 
+                : phoneRes.data.qrCode?.props?.src || phoneRes.data.qrCode?.src || phoneRes.data.qrCode?.url || "data:image/png;base64," + phoneRes.data.qrCode;
+            
+            console.log('Setting QR Code URL:', qrCodeUrl);
+            setAuthenticatorSecret(qrCodeUrl);
             setShowQRCodeDialog(true);
         } else {
             setStatusText('Invalid phone verification code!');
             setIsStatusSuccess(false);
             setErrors({ phoneOtp: 'Invalid phone verification code!' });
         }
-        setSubmitting(false);
-    };
+    } catch (error) {
+        console.error('Phone verification error:', error);
+        setStatusText('Error during phone verification');
+        setIsStatusSuccess(false);
+    }
+    setSubmitting(false);
+};
     
     const handleVerifyTOTP = async () => {
         if (!totp) {
@@ -308,21 +325,19 @@ const EmailVerification = ({ user }) => {
                     {statusText}
                 </CustomAlert>
             </Snackbar>
-            <Dialog open={showQRCodeDialog} onClose={() => setShowQRCodeDialog(true)}>
+            <Dialog open={showQRCodeDialog} onClose={() => setShowQRCodeDialog(false)}>
                 <DialogTitle>Scan QR Code</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Scan this QR code with your authenticator app.
                     </DialogContentText>
-                        {typeof authenticatorSecret === 'string' ? (
-                        <img
-                            src={authenticatorSecret}
-                            alt="Authenticator QR Code"
-                            style={{ maxWidth: '100%', marginBottom: '1rem' }}
+                    {authenticatorSecret && (
+                        <img 
+                            src={authenticatorSecret} 
+                            alt="Authenticator QR Code" 
+                            style={{ maxWidth: '100%', height: 'auto', display: 'block', margin: '10px auto' }}
                         />
-                        ) : (
-                        authenticatorSecret /* e.g. a <QRCode value="..."/> component */
-                        )}
+                    )}
                     <TextField
                         autoFocus
                         margin="dense"
@@ -331,27 +346,29 @@ const EmailVerification = ({ user }) => {
                         type="text"
                         fullWidth
                         variant="standard"
-                        value={totp}
+                        value={totp || ''}
                         onChange={(e) => setTotp(e.target.value)}
                         error={!totp}
                         helperText={!totp ? 'Please enter the code from your authenticator app' : ''}
                     />
-                    <Stack direction="row" spacing={2}>
-                        <GooglePlayButton
-                            // platform="android"
-                            url="https://play.google.com/apps/internaltest/4701521647417901976"
-                            badge="Google Play"
-                        />
-                        <AppStoreButton
-                            // platform="ios"
-                            url="https://apps.apple.com/us/app/google-authenticator/id388497605"
-                            badge="App Store"
-                        />
-                    </Stack>
+                    {/* Temporarily remove the problematic buttons */}
+                    <div style={{ margin: '20px 0' }}>
+                        <p>Download an authenticator app:</p>
+                        <p>
+                            <a href="https://play.google.com/apps/internaltest/4701521647417901976" target="_blank" rel="noopener noreferrer">
+                                Google Play Store
+                            </a>
+                        </p>
+                        <p>
+                            <a href="https://apps.apple.com/us/app/google-authenticator/id388497605" target="_blank" rel="noopener noreferrer">
+                                App Store
+                            </a>
+                        </p>
+                    </div>
                 </DialogContent>
                 <DialogActions>
-                    {/* <Button onClick={() => setShowQRCodeDialog(false)}>Cancel</Button> */}
-                    <Button onClick={handleVerifyTOTP}>
+                    <Button onClick={() => setShowQRCodeDialog(false)}>Cancel</Button>
+                    <Button onClick={handleVerifyTOTP} variant="contained">
                         Verify Code
                     </Button>
                 </DialogActions>
