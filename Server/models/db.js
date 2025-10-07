@@ -5,7 +5,7 @@ let db;
 let bucket;
 
 mongoose
-  connect(config.DATABASE.mongoDBUri, {
+  .connect(config.DATABASE.mongoDBUri, {
   // modern driver ignores useNewUrlParser/useUnifiedTopology anyway
     serverSelectionTimeoutMS: 10000,
     socketTimeoutMS: 45000,
