@@ -219,3 +219,8 @@ exports.bulkDownload = async (req, res) => {
     }
     
 }
+
+exports.appId = (req, res) => {
+    
+    res.json({ok: config.GOOGLE_APP_INFO.APP_ID ? true : false, appId: config.GOOGLE_APP_INFO.APP_ID})
+}

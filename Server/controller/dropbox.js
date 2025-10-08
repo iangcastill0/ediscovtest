@@ -85,7 +85,7 @@ exports.addTeam = async (req, res) => {
     const userId = req.userId
 
     if (!userId) {
-        admin.logActions(req, { actionType: 'Install ms365 workspace', actionDetails: 'Not authenticated', actionResult: 'Failed' })
+        admin.logActions(req, { actionType: 'Install dropbox workspace', actionDetails: 'Not authenticated', actionResult: 'Failed' })
         return res.json({ ok: false, data: 'Not authenticated!' })
     }
 

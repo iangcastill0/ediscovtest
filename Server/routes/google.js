@@ -68,7 +68,7 @@ router.get('/google/add-personal', authJWT.verifyToken, authJWT.checkTrial, asyn
     const userId = req.userId
 
     if (!userId) {
-        admin.logActions(req, { actionType: 'Install ms365 workspace', actionDetails: 'Not authenticated', actionResult: 'Failed' })
+        admin.logActions(req, { actionType: 'Install google workspace', actionDetails: 'Not authenticated', actionResult: 'Failed' })
         return res.json({ ok: false, data: 'Not authenticated!' })
     }
 
@@ -134,9 +134,8 @@ router.get('/google/add-organization-service', authJWT.checkTrial, async (req, r
     }
 });
 
-router.get('/google/auth-redirect-test', async (req, res) => {
+router.get('/google/auth-redirect', async (req, res) => {
     const { code } = req.query;
-    console.log('==test redirect function==');
     console.log(code)
     try {
         const { tokens } = await oauth2ClientTest.getToken(code);
@@ -1197,5 +1196,6 @@ router.get('/google/fileDownload/:workspaceId/:userId/:fileId', authJWT.verifyTo
 
 router.delete('/google/remove-workspace/:workspaceId', authJWT.verifyToken, authJWT.checkTrial, googleController.removeWorkspace)
 router.post('/google/workspace/:workspaceId/users/:userId/bulk-download', authJWT.verifyToken, authJWT.checkTrial, googleController.bulkDownload)
+router.get('/google/appId', authJWT.verifyToken, authJWT.checkTrial, googleController.appId)
 
 module.exports = router;

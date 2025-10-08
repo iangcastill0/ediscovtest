@@ -43,7 +43,7 @@ const { google } = require('googleapis');
 const oauth2ClientTest = new google.auth.OAuth2(
     config.GOOGLE_APP_INFO.CLIENT_ID,
     config.GOOGLE_APP_INFO.CLIENT_SECRET,
-    `${config.SITE_URL}/api/google/auth-redirect-test`
+    config.GOOGLE_APP_INFO.REDIRECT_URI
 );
 
 const getClient = token => {

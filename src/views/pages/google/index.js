@@ -29,6 +29,7 @@ const GoogleChannel = () => {
     const [loading, setLoading] = useState(false);
     const [reload, setReload] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [appId, setAppId] = useState('')
     const navigate = useNavigate();
     const { user } = useAuth();
 
@@ -50,6 +51,8 @@ const GoogleChannel = () => {
         const fetch = async () => {
             setLoading(true);
             const response = await axios.get('/google/workspaces');
+            const res = await axios.get('/google/appId')
+            setAppId(res.data.appId)
             const data = response.data;
             console.log('data', data.data);
             setTeams(data.data || []);
@@ -185,8 +188,8 @@ const GoogleChannel = () => {
                         <li>Click <strong>"Add new"</strong> and enter the following information:</li>
                     </ul>
                     <Typography key='4'>
-                        <strong>Client ID:</strong> {clientId}
-                        <CopyToClipboard text={clientId} onCopy={() => alert('Client ID copied!')}>
+                        <strong>APP ID:</strong> {appId}
+                        <CopyToClipboard text={appId} onCopy={() => alert('Client ID copied!')}>
                             <Tooltip title="Copy to clipboard">
                                 <IconButton size="small" >
                                     <ContentCopyIcon />

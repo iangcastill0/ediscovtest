@@ -197,7 +197,7 @@ const AuthCodeVerification = () => {
                 </Grid>
             )}
 
-            <Dialog open={openTotpDialog} onClose={() => setOpenTotpDialog(false)} disableEscapeKeyDown>
+            <Dialog open={openTotpDialog} onClose={() => setOpenTotpDialog(true)} disableEscapeKeyDown>
                 <DialogTitle>
                     <Typography variant="h5" align="center">
                         Two-Factor Authentication
@@ -219,19 +219,16 @@ const AuthCodeVerification = () => {
                             onChange={(e) => setTotp(e.target.value)}
                         />
                         <Stack direction="row" spacing={2}>
-                            <div style={{ margin: '10px 0' }}>
-                                <p>Download an authenticator app:</p>
-                                <p>
-                                    <a href="https://play.google.com/apps/internaltest/4701521647417901976" target="_blank" rel="noopener noreferrer">
-                                        Google Play Store
-                                    </a>
-                                </p>
-                                <p>
-                                    <a href="https://apps.apple.com/us/app/google-authenticator/id388497605" target="_blank" rel="noopener noreferrer">
-                                        App Store
-                                    </a>
-                                </p>
-                            </div>
+                            <GooglePlayButton
+                                // platform="android"
+                                url="https://play.google.com/apps/internaltest/4701521647417901976"
+                                badge="Google Play"
+                            />
+                            <AppStoreButton
+                                // platform="ios"
+                                url="https://apps.apple.com/us/app/google-authenticator/id388497605"
+                                badge="App Store"
+                            />
                         </Stack>
                     </Stack>
                     {statusText && (

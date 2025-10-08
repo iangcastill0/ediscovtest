@@ -1,24 +1,9 @@
-// Polyfill web APIs for undici/elasticsearch compatibility
-if (typeof globalThis.ReadableStream === 'undefined') {
-  const { ReadableStream, WritableStream, TransformStream } = require('stream/web');
-  globalThis.ReadableStream = ReadableStream;
-  globalThis.WritableStream = WritableStream;
-  globalThis.TransformStream = TransformStream;
-}
-
-// Polyfill DOMException
-if (typeof globalThis.DOMException === 'undefined') {
-  globalThis.DOMException = require('domexception');
-}
-const path = require('path');
-require('dotenv').config({
-  path: path.resolve(__dirname, '.env'),
-});
 'use strict';
 
 // const https = require("https");
 const express = require('express');
 // const fs = require('fs');
+const path = require('path');
 const app = express();
 const cors = require("cors");
 const session = require('express-session');
@@ -153,11 +138,6 @@ app.get('/auth/google/callback', passport.authenticate('google'), async (req, re
     }
 });
 
-// Simple health check route for testing
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
-
 app.use((req, res, next) => {
     if (/(.ico|.js|.css|.jpg|.png|.map|.svg|.ttf)$/i.test(req.path)) {
         next();
@@ -176,7 +156,7 @@ const PORT = process.env.PORT || 8000;
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: appConfig.SERVER_NAME || "https://ediscovtest.com",
+    origin: appConfig.SERVER_NAME || "https://completediscovery.com",
     methods: ["GET", "POST"]
   }
 });

@@ -7,21 +7,65 @@ const admin = require("./admin");
 const User = require('../models/user');
 const BoxWorkspace = require('../models/boxworkspace');
 const BoxMember = require('../models/boxmember');
-const boxConfig = require('../config/box-config.json')
 
 const sdkConfig = {
     boxAppSettings: {
-      clientID: "rhf6ra69rvezcm8qk9yv9bgg64r4a8ey",
-      clientSecret: "usRX4CQb6tDfaXtetBa2rDS0ejQuI6vR",
+      clientID: config.BOX_INFO.boxAppSettings.clientID,
+      clientSecret: config.BOX_INFO.boxAppSettings.clientSecret,
       appAuth: {
-        keyID: boxConfig.boxAppSettings.appAuth.keyId,
-        privateKey: boxConfig.boxAppSettings.appAuth.privateKey.replace(/\\n/g, '\n'),
-        passphrase: boxConfig.boxAppSettings.appAuth.passphrase
+        keyID: config.BOX_INFO.boxAppSettings.appAuth.publicKeyID,
+        privateKey: config.BOX_INFO.boxAppSettings.appAuth.privateKey.replace(/\\n/g, '\n'),
+        passphrase: config.BOX_INFO.boxAppSettings.appAuth.passphrase
       }
     },
-    enterpriseID: boxConfig.boxAppSettings.enterpriseID
+    enterpriseID: config.BOX_INFO.enterpriseID
   };
 const boxSdk = new BoxSDKA(sdkConfig.boxAppSettings)
+
+exports.getBoxAccessToken = async (workspaceId) => {
+    try {
+      const workspace = await BoxWorkspace.findById(workspaceId);
+  
+      if (!workspace) {
+        throw new Error('Workspace not found.');
+      }
+  
+      // If no refresh token, cannot refresh
+      if (!workspace.refreshToken) {
+        throw new Error('No refresh token available for this workspace.');
+      }
+  
+      // Request a new access token from Box
+      const tokenResponse = await axios.post(
+        'https://api.box.com/oauth2/token',
+        querystring.stringify({
+          grant_type: 'refresh_token',
+          refresh_token: workspace.refreshToken,
+          client_id: config.BOX_INFO_PERSONAL.CLIENT_ID,
+          client_secret: config.BOX_INFO_PERSONAL.CLIENT_SECRET,
+        }),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }
+      );
+  
+      const { access_token, refresh_token, expires_in } = tokenResponse.data;
+  
+      // Update tokens in the database
+      workspace.accessToken = access_token;
+      workspace.refreshToken = refresh_token;
+      workspace.tokenExpiresAt = new Date(Date.now() + expires_in * 1000);
+      await workspace.save();
+  
+      console.log(`✅ Box access token refreshed for workspace ${workspace.displayName}`);
+  
+      // Return new access token
+      return access_token;
+    } catch (error) {
+      console.error('❌ Error refreshing Box access token:', error.response?.data || error.message);
+      throw new Error('Failed to refresh Box access token.');
+    }
+  };  
 
 exports.installPersonal = (req, res) => {
     const { token, state } = req.query;
@@ -324,14 +368,29 @@ exports.files = async (req, res) => {
       let client;
   
       if (isPersonal === "true" || boxWorkspace.isPersonal) {
-        if (!boxWorkspace.accessToken) {
-          return res.status(400).json({ ok: false, msg: "No access token for personal Box workspace." });
-        }
+        const boxWorkspace = await BoxWorkspace.findById(workspaceId);
+        let accessToken = boxWorkspace.accessToken;
+
+        // Use the personal Box API client
         const boxSdkPersonal = new BoxSDKA({
-          clientID: config.BOX_INFO_PERSONAL.CLIENT_ID,
-          clientSecret: config.BOX_INFO_PERSONAL.CLIENT_SECRET,
+            clientID: config.BOX_INFO_PERSONAL.CLIENT_ID,
+            clientSecret: config.BOX_INFO_PERSONAL.CLIENT_SECRET,
         });
-        client = boxSdkPersonal.getBasicClient(boxWorkspace.accessToken);
+
+        client = boxSdkPersonal.getBasicClient(accessToken);
+
+        try {
+            // Test token validity (e.g., fetch current user)
+            await client.users.get(client.CURRENT_USER_ID);
+        } catch (err) {
+            if (err.statusCode === 401) {
+            console.log('🔄 Access token expired. Refreshing...');
+            accessToken = await exports.getBoxAccessToken(workspaceId);
+            client = boxSdkPersonal.getBasicClient(accessToken);
+            } else {
+            throw err;
+            }
+        }
       } else {
         // Enterprise app auth
         const adminClient = boxSdk.getAppAuthClient("enterprise", boxWorkspace.teamId);

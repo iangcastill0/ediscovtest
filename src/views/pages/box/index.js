@@ -173,7 +173,7 @@ const BoxChannel = () => {
             <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm" disableEscapeKeyDown>
                 <DialogTitle>
                     Authorize Box Enterprise App
-                    <IconButton aria-label="close" onClick={handleCloseDialog} sx={{ position: 'absolute', right: 8, top: 8 }}>
+                    <IconButton aria-label="close" onClick={() => setOpenDialog(false)} sx={{ position: 'absolute', right: 8, top: 8 }}>
                         <CloseIcon />
                     </IconButton>
                 </DialogTitle>

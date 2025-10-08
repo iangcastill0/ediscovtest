@@ -1,21 +1,12 @@
-const getEnv = (key, defaultValue) => {
-  const value = process.env[key];
-  if (value === undefined || value === '') {
-    if (defaultValue !== undefined) {
-      return defaultValue;
-    }
-    throw new Error(`Environment variable ${key} is required`);
-  }
-  return value;
-};
+require('dotenv').config();
 
 module.exports = {
-  secret: getEnv('EXPRESS_SESSION_SECRET','!@#_evestigate_saas_2023_!@#'),
-  G_CLIENT_ID: getEnv('GOOGLE_CLIENT_ID'),
-  G_CLIENT_SECRET: getEnv('GOOGLE_CLIENT_SECRET'),
+  secret: '!@#_evestigate_saas_2023_!@#',
+  G_CLIENT_ID: '22301354270-s9o0tjfhhik2orirp2075bk63e7amf9e.apps.googleusercontent.com',
+  G_CLIENT_SECRET: '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',
   Twilio: {
-    accountSID: getEnv('TWILIO_ACCOUNT_SID'),
-    accountAuthToken: getEnv('TWILIO_AUTH_TOKEN'),
-    serviceSID: getEnv('TWILIO_SERVICE_SID'),
+    accountSID: process.env.TWILIO_ACCOUNT_SID,
+    accountAuthToken: process.env.TWILIO_ACCOUNT_AUTH_TOKEN,
+    serviceSID: process.env.TWILIO_SERVICE_SID,
   },
 };

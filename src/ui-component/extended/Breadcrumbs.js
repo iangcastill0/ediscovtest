@@ -144,7 +144,7 @@ const Breadcrumbs = ({ card, divider, icon, icons, maxItems, navigation, rightAl
                                     maxItems={maxItems || 8}
                                     separator={separatorIcon}
                                 >
-                                    <Typography component={Link} to="/Dashboard" color="inherit" variant="subtitle1" sx={linkSX}>
+                                    <Typography component={Link} to="/" color="inherit" variant="subtitle1" sx={linkSX}>
                                         {icons && <HomeTwoToneIcon sx={iconStyle} />}
                                         {icon && <HomeIcon sx={{ ...iconStyle, mr: 0 }} />}
                                         {!icon && 'Dashboard'}

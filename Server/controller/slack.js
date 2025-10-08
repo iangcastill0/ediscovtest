@@ -62,7 +62,7 @@ exports.install = async (req, res) => {
         return res.redirect('/billing?status=3')
     }
 
-    const url = `https://slack.com/oauth/v2/authorize?state=${state}|${userId}&client_id=5258767683554.5510301270178&scope=&user_scope=${config.SLACK_APP_INFO.userScope}`
+    const url = `https://slack.com/oauth/v2/authorize?state=${state}|${userId}&client_id=${config.SLACK_APP_INFO.clientId}&scope=&user_scope=${config.SLACK_APP_INFO.userScope}`
     admin.logActions(req, { actionType: 'Redirect slack workspace', actionDetails: '', actionResult: 'Success' })
     return res.redirect(url)
 }
@@ -72,7 +72,7 @@ exports.slack_authenticate = async (req, res) => {
     if (!userId) {
         res.json({ ok: false, data: 'Not authenticated!' })
     }
-    const url = `https://slack.com/oauth/v2/authorize?client_id=5258767683554.5510301270178&scope=&user_scope=${config.SLACK_APP_INFO.userScope}`
+    const url = `https://slack.com/oauth/v2/authorize?client_id=${config.SLACK_APP_INFO.clientId}&scope=&user_scope=${config.SLACK_APP_INFO.userScope}`
     return res.redirect(url)
 }
 

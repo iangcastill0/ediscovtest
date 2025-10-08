@@ -51,7 +51,7 @@ router.get('/ms365/addTenant', authJWT.verifyToken,  async (req, res) => {
       return res.redirect('/billing?status=3')
   }
 
-  const url = `https://login.microsoftonline.com/organizations/adminconsent?client_id=0362fe36-c557-4a54-828a-fc7f6ac050c4&state=${userId}&redirect_uri=${config.SITE_URL}/api/ms365/redirect`
+  const url = `https://login.microsoftonline.com/organizations/adminconsent?client_id=${config.MS365_APP_INFO.msalConfig.auth.clientId}&state=${userId}&redirect_uri=${config.MS365_APP_INFO.REDIRECT_URI}`
 
   return res.redirect(url)
 })
