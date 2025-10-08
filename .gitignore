@@ -32,3 +32,7 @@ yarn.lock*
 Server/cert.pem
 Server/key.pem
 *.pem
+.env
+*.env
+Server/.env
+.env.*
