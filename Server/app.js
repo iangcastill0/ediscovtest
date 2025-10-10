@@ -137,8 +137,12 @@ app.get('/auth/google/callback', passport.authenticate('google'), async (req, re
         return;
     }
 });
-
 app.use((req, res, next) => {
+    // Skip this middleware for API routes
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
+    
     if (/(.ico|.js|.css|.jpg|.png|.map|.svg|.ttf)$/i.test(req.path)) {
         next();
     } else {
@@ -146,6 +150,14 @@ app.use((req, res, next) => {
         res.sendFile(path.join(__dirname, '../build', 'index.html'));
     }
 });
+// app.use((req, res, next) => {
+//     if (/(.ico|.js|.css|.jpg|.png|.map|.svg|.ttf)$/i.test(req.path)) {
+//         next();
+//     } else {
+//         res.header('Expires', '-1');
+//         res.sendFile(path.join(__dirname, '../build', 'index.html'));
+//     }
+// });
 app.use(express.static(path.join(__dirname, '../build')));
 app.use(express.static(path.join(__dirname, '../public')));
 app.use('/download', express.static('download'));
