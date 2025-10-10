@@ -122,11 +122,15 @@ exports.signup = async (req, res) => {
 };
 
 exports.signup2 = async (req, res) => {
+  console.log('>>> SIGNUP2 ENDPOINT HIT <<<');
+  console.log('Request body:', req.body);
+  
   const existUser = await User.findOne (
     {email: req.body.email},
     userProtectFields
   );
   if (existUser) {
+    console.log('User already exists:', req.body.email);
     admin.logActions (req, {
       email: req.body.email,
       actionType: 'SignUp',
@@ -137,18 +141,18 @@ exports.signup2 = async (req, res) => {
     return;
   }
 
-  // const mailVerificationToken = crypto.randomBytes(32).toString('hex');
-  // const mailVerificationTokenExpires = new Date();
-  // mailVerificationTokenExpires.setDate(mailVerificationTokenExpires.getDate() + 7);  // Token expires in 7 days
-
   const currentDate = new Date ();
   const trialEndDate = new Date ();
   trialEndDate.setDate (currentDate.getDate () + 30);
   const twoFactorCode = Utils.generateTwoFactorCode ();
+  console.log('Generated 2FA code:', twoFactorCode);
+  console.log('Attempting to send email to:', req.body.email);
+  
   const mailSendStatus = await Utils.sendTwoFactorMail (
     req.body.email,
     twoFactorCode
   );
+  console.log('Mail send status:', mailSendStatus);
   if (mailSendStatus) {
     const user = new User ({
       email: req.body.email,
