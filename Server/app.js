@@ -168,7 +168,7 @@ const PORT = process.env.PORT || 8000;
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: appConfig.SERVER_NAME || "https://completediscovery.com",
+    origin: appConfig.SERVER_NAME || "https://ediscovtest.com",
     methods: ["GET", "POST"]
   }
 });
